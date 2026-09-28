@@ -1,53 +1,52 @@
 // src/offline.js
+// Simple persistence layer using localStorage (client‑side only)
+
+const STORAGE_KEY = "infiniteZeroesState";
+
 /**
- * Simple persistence layer using localStorage.
- * Stores the entire gameState object as JSON.
- * On load, it also calculates offline gains based on the time elapsed
- * since the last saved timestamp.
+ * Load saved state from localStorage.
+ * Returns an object { zeroCount, generators } or null if none.
  */
-
-import { serializeGenerators } from "./generators.js";
-
-const STORAGE_KEY = "infinite_zeroes_state";
-
-export function saveGame(state) {
-  try {
-    const data = {
-      zeroes: state.zeroes,
-      generators: serializeGenerators(state.generators),
-      upgrades: state.upgrades,
-      prestigeLevel: state.prestigeLevel,
-      lastTimestamp: Date.now(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error("Failed to save game", e);
-  }
-}
-
-export function loadGame() {
+export function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw);
-    // Calculate offline gain
-    const now = Date.now();
-    const elapsedSec = Math.floor((now - data.lastTimestamp) / 1000);
-    const perSec = data.generators.reduce((sum, g) => sum + g.baseRate * g.level, 0);
-    const offlineGain = perSec * elapsedSec;
-    if (offlineGain > 0) {
-      data.zeroes += offlineGain;
+    const parsed = JSON.parse(raw);
+    // Re‑hydrate generator objects (they lose methods when parsed)
+    if (Array.isArray(parsed.generators)) {
+      // We only need level and name; other properties are recomputed via rate getter.
+      // We'll store generator name and level only.
+      const rehydrated = parsed.generators.map((g) => {
+        // The baseRate is not stored; we need a lookup based on name.
+        // For now we assume the same ordering as initGenerators and will restore later.
+        return {
+          name: g.name,
+          level: g.level,
+          // baseRate will be filled in by initGenerators if missing.
+        };
+      });
+      parsed.generators = rehydrated;
     }
-    // Return restored state (without upgrades logic for simplicity)
-    return {
-      zeroes: data.zeroes,
-      generators: data.generators,
-      upgrades: data.upgrades,
-      prestigeLevel: data.prestigeLevel,
-      lastTimestamp: now,
-    };
+    return parsed;
   } catch (e) {
-    console.error("Failed to load game", e);
+    console.error("Failed to load game state", e);
     return null;
+  }
+}
+
+/**
+ * Save current state to localStorage.
+ * @param {Object} state - Object containing zeroCount and generators.
+ */
+export function saveState(state) {
+  try {
+    // Strip functions / prototypes before storing.
+    const sanitized = {
+      zeroCount: state.zeroCount,
+      generators: state.generators.map((g) => ({ name: g.name, level: g.level })),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+  } catch (e) {
+    console.error("Failed to save game state", e);
   }
 }
