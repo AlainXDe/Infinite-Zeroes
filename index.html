@@ -7,18 +7,98 @@
   <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+  <!-- Header with Hamburger Menu and Counter -->
   <header>
-    <h1>Infinite Zeroes</h1>
-    <div id="zero-counter" role="status" aria-live="polite">0</div>
+    <div class="header-left">
+      <button id="menu-btn" class="hamburger-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu-modal">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <h1 id="app-title">Infinite Zeroes</h1>
+    </div>
+    <div class="header-right">
+      <div id="player-alias-badge" class="alias-pill" aria-label="Current Player Alias">Player 1</div>
+      <div id="zero-counter-wrapper">
+        <span id="zero-counter" role="status" aria-live="polite">0</span>
+        <span class="currency-label">0s</span>
+      </div>
+      <div id="zero-rate" class="zero-rate" aria-label="Production rate">+0.00 Z/s</div>
+    </div>
   </header>
 
+  <!-- Interactive Game Area -->
   <main id="game-area" aria-label="Game area">
-    <!-- Generator UI will be inserted here by JavaScript -->
+    <p id="click-prompt" class="hint-text">Click anywhere on screen to generate zeroes!</p>
+    <section id="generators-container" class="generators-container" aria-label="Generators">
+      <!-- Generator cards inserted dynamically -->
+    </section>
   </main>
 
   <footer>
-    <button id="reset-button">Reset Game (testing)</button>
+    <button id="reset-button" class="btn-secondary">Reset Profile (testing)</button>
   </footer>
+
+  <!-- Modal / Pop-over for Main Menu -->
+  <div id="menu-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-nav-title">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-nav-title">Menu</h2>
+        <button id="close-modal-btn" class="close-btn" aria-label="Close menu">&times;</button>
+      </div>
+
+      <!-- Menu Tabs Navigation -->
+      <nav class="menu-tabs" role="tablist">
+        <button id="tab-alias-btn" class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-alias">Alias & Profiles</button>
+        <button id="tab-stats-btn" class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-stats">Stats</button>
+        <button id="tab-options-btn" class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-options">Options</button>
+      </nav>
+
+      <!-- Panel: Alias & Profiles -->
+      <div id="tab-alias" class="tab-panel active" role="tabpanel">
+        <div class="panel-section">
+          <label for="alias-input" class="section-label" id="alias-label">Current Alias</label>
+          <div class="input-row">
+            <input type="text" id="alias-input" maxlength="24" placeholder="Enter player alias" />
+            <button id="save-alias-btn" class="btn-primary">Save Alias</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3 class="section-label" id="profiles-heading">Profiles (Up to 3 Slots)</h3>
+          <div id="profiles-list" class="profiles-list">
+            <!-- Dynamic profile slots rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Stats -->
+      <div id="tab-stats" class="tab-panel" role="tabpanel" hidden>
+        <div id="stats-container" class="stats-grid">
+          <!-- Dynamic stats loaded here -->
+        </div>
+      </div>
+
+      <!-- Panel: Options -->
+      <div id="tab-options" class="tab-panel" role="tabpanel" hidden>
+        <div class="options-group">
+          <label for="theme-select" class="section-label" id="theme-label">Theme</label>
+          <select id="theme-select" class="dropdown"></select>
+        </div>
+
+        <div class="options-group">
+          <label for="lang-select" class="section-label" id="lang-label">Language</label>
+          <select id="lang-select" class="dropdown"></select>
+        </div>
+
+        <div class="options-group">
+          <label for="notation-select" class="section-label" id="notation-label">Number Notation</label>
+          <select id="notation-select" class="dropdown"></select>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="src/app.js"></script>
 </body>
